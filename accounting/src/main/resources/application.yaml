@@ -12,6 +12,32 @@ spring:
   liquibase:
     enabled: true
     change-log: db/changelog/changelog.xml
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        linger.ms: 100
+        enable.idempotence: true
+    consumer:
+      group-id: dd-${spring.application.name}-consumer-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      isolation-level: read_committed
+      properties:
+        spring.json.trusted.packages: "io.dd.test.core.kafka.*"
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
 
 server:
   port: 9002
+
+app:
+  kafka:
+    topics:
+      accounting-command:
+        name: "dd.accounting.command"
+        partitions: 3
+        replicas: 3
+        min-in-sync-replicas: 2
