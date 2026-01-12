@@ -36,6 +36,8 @@ server:
 app:
   kafka:
     topics:
+      saga-event:
+        name: "dd.saga.event"
       profiler-command:
         name: "dd.profiler.command"
         partitions: 3
