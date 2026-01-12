@@ -1,3 +1,16 @@
 spring:
   application:
     name: resources
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  liquibase:
+    change-log: db/changelog/changelog.xml
+
+server:
+  port: 9003
