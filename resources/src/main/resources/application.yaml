@@ -35,6 +35,8 @@ server:
 app:
   kafka:
     topics:
+      saga-event:
+        name: "dd.saga.event"
       resources-command:
         name: "dd.resources.command"
         partitions: 3

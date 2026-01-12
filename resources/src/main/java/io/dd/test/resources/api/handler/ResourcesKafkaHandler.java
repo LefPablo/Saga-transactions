@@ -1,6 +1,7 @@
-package io.dd.test.resources.handler;
+package io.dd.test.resources.api.handler;
 
 import io.dd.test.core.kafka.command.ResourcesCommand;
+import io.dd.test.resources.service.ResourcesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaHandler;
@@ -13,9 +14,12 @@ import org.springframework.stereotype.Component;
 @KafkaListener(topics = "${app.kafka.topics.resources-command.name}")
 public class ResourcesKafkaHandler {
 
+    private final ResourcesService service;
+
     @KafkaHandler
     public void handleCommand(ResourcesCommand command) {
         log.info("Got resources command: {}", command);
+        service.processCommand(command);
     }
 
 }
