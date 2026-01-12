@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@KafkaListener(topics = "${app.kafka.topics.vacation-command.name}")
+@KafkaListener(topics = "${app.kafka.topics.accounting-command.name}")
 public class AccountingKafkaHandler {
 
     @KafkaHandler
