@@ -15,7 +15,7 @@ public class VacationKafkaHandler {
 
     @KafkaHandler
     public void handleVacationCommand(VacationCommand command) {
-        log.info("Got vacation command: {}");
+        log.info("Got vacation command: {}", command);
     }
 
 }
