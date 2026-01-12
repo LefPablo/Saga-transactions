@@ -14,7 +14,7 @@ public class KafkaConfig {
     //TODO add dlt topic plus error handler
 
     @Bean
-    public NewTopic vacationCommandTopic(VacationTopicProperties topicProperties) {
+    public NewTopic commandTopic(TopicProperties topicProperties) {
         return TopicBuilder
                 .name(topicProperties.getName())
                 .partitions(topicProperties.getPartitions())
