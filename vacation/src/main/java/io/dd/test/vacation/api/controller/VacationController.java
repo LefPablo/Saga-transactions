@@ -1,8 +1,8 @@
 package io.dd.test.vacation.api.controller;
 
+import io.dd.test.core.ProcessStatus;
 import io.dd.test.vacation.api.dto.CreateVacationRequestDto;
 import io.dd.test.vacation.api.dto.VacationRequestDto;
-import io.dd.test.vacation.persistence.model.VacationRequestStatus;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +26,12 @@ public class VacationController {
     @PostMapping("/request")
     public VacationRequestDto createVacationRequest(@Valid @RequestBody CreateVacationRequestDto createRequest) {
         log.info("Create vacation request: {}", createRequest);
-        return new VacationRequestDto(1L, UUID.randomUUID(), LocalDate.now(), LocalDate.now(), BigDecimal.ONE, VacationRequestStatus.CREATED);
+        return new VacationRequestDto(1L, UUID.randomUUID(), LocalDate.now(), LocalDate.now(), BigDecimal.ONE, ProcessStatus.CREATED);
     }
 
     @GetMapping("/request/{requestId}")
     public VacationRequestDto getVacationRequest(@PathVariable Long requestId) {
         log.info("Get vacation request by id: {}", requestId);
-        return new VacationRequestDto(1L, UUID.randomUUID(), LocalDate.now(), LocalDate.now(), BigDecimal.ONE, VacationRequestStatus.CREATED);
+        return new VacationRequestDto(1L, UUID.randomUUID(), LocalDate.now(), LocalDate.now(), BigDecimal.ONE, ProcessStatus.CREATED);
     }
 }

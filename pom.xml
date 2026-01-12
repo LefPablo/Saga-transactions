@@ -19,6 +19,7 @@
         <module>resources</module>
         <module>saga</module>
         <module>vacation</module>
+        <module>saga-core</module>
     </modules>
 
 	<properties>
@@ -29,6 +30,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <org.projectlombok.mapstruct.binding>0.2.0</org.projectlombok.mapstruct.binding>
         <spring.boot.maven.compiler.plugin.version>3.10.1</spring.boot.maven.compiler.plugin.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.7.0</springdoc-openapi-starter-webmvc-ui.version>
 	</properties>
 
 	<dependencies>
@@ -69,6 +71,16 @@
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.dd.test</groupId>
+                <artifactId>saga-core</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

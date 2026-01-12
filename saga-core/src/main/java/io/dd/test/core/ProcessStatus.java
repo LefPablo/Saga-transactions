@@ -1,6 +1,6 @@
-package io.dd.test.vacation.persistence.model;
+package io.dd.test.core;
 
-public enum VacationRequestStatus {
+public enum ProcessStatus {
     CREATED,
     BUDGET_FAILED,
     BUDGET_ALLOCATED,

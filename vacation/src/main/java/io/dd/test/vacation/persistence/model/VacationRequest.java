@@ -1,5 +1,6 @@
 package io.dd.test.vacation.persistence.model;
 
+import io.dd.test.core.ProcessStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,6 +36,6 @@ public class VacationRequest {
     private BigDecimal budget;
 
     @Enumerated(EnumType.STRING)
-    private VacationRequestStatus status;
+    private ProcessStatus status;
 
 }
