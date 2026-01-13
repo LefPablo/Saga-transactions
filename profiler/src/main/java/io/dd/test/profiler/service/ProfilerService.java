@@ -4,6 +4,7 @@ import io.dd.test.core.kafka.command.ProfilerCommand;
 import io.dd.test.core.kafka.event.ProfilerEvent;
 import io.dd.test.profiler.api.publisher.ProfilerKafkaPublisher;
 import io.dd.test.profiler.persistence.model.ProfilerRequest;
+import io.dd.test.profiler.persistence.model.ProfilerStatus;
 import io.dd.test.profiler.persistence.repository.ProfilerRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,13 @@ public class ProfilerService {
         request.setRequestId(command.requestId());
         request.setCvUuid(command.cvUuid());
 
-        boolean updated = command.cvUuid().equals(NIL_UUID);
+        boolean updated = ! command.cvUuid().equals(NIL_UUID);
         ProfilerEvent event = new ProfilerEvent(command.requestId(), updated);
+        if (updated) {
+            request.setStatus(ProfilerStatus.UPDATED);
+        } else {
+            request.setStatus(ProfilerStatus.FAILED);
+        }
 
         repository.save(request);
         publisher.sendEvent(event);

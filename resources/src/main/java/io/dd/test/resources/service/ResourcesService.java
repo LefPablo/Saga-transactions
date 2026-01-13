@@ -4,6 +4,7 @@ import io.dd.test.core.kafka.command.ResourcesCommand;
 import io.dd.test.core.kafka.event.ResourcesEvent;
 import io.dd.test.resources.api.publisher.ResourcesKafkaPublisher;
 import io.dd.test.resources.persistence.model.ResourcesRequest;
+import io.dd.test.resources.persistence.model.ResourcesStatus;
 import io.dd.test.resources.persistence.repository.ResourcesRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,11 @@ public class ResourcesService {
 
         boolean passed = ChronoUnit.DAYS.between(command.periodFrom(), command.periodTo()) <= 25;
         ResourcesEvent event = new ResourcesEvent(command.requestId(), passed);
+        if (passed) {
+            request.setStatus(ResourcesStatus.PASSED);
+        } else {
+            request.setStatus(ResourcesStatus.FAILED);
+        }
 
         repository.save(request);
         publisher.sendEvent(event);

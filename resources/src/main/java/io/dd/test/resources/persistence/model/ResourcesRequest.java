@@ -1,6 +1,8 @@
 package io.dd.test.resources.persistence.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,5 +28,8 @@ public class ResourcesRequest {
     private Long requestId;
     private LocalDate periodFrom;
     private LocalDate periodTo;
+
+    @Enumerated(EnumType.STRING)
+    private ResourcesStatus status;
 
 }

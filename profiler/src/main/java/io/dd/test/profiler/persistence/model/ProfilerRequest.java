@@ -1,6 +1,8 @@
 package io.dd.test.profiler.persistence.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,4 +28,6 @@ public class ProfilerRequest {
     private Long requestId;
     private UUID cvUuid;
 
+    @Enumerated(EnumType.STRING)
+    private ProfilerStatus status;
 }
