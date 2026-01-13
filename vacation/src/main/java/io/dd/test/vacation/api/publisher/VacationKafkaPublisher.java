@@ -1,6 +1,7 @@
 package io.dd.test.vacation.api.publisher;
 
 import io.dd.test.core.kafka.event.VacationApprovedEvent;
+import io.dd.test.core.kafka.event.VacationCancelEvent;
 import io.dd.test.core.kafka.event.VacationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
-import org.apache.kafka.common.serialization.LongDeserializer;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +30,11 @@ public class VacationKafkaPublisher {
     }
 
     public CompletableFuture<SendResult<Long, Object>> sendEvent(VacationApprovedEvent event) {
+        ProducerRecord<Long, Object> record = new ProducerRecord<>(sagaEventTopic, event.requestId(), event);
+        return sendRecord(record);
+    }
+
+    public CompletableFuture<SendResult<Long, Object>> sendEvent(VacationCancelEvent event) {
         ProducerRecord<Long, Object> record = new ProducerRecord<>(sagaEventTopic, event.requestId(), event);
         return sendRecord(record);
     }

@@ -1,8 +1,10 @@
 package io.dd.test.vacation.service;
 
 import io.dd.test.core.ProcessStatus;
+import io.dd.test.core.kafka.command.VacationCancelCommand;
 import io.dd.test.core.kafka.command.VacationCommand;
 import io.dd.test.core.kafka.event.VacationApprovedEvent;
+import io.dd.test.core.kafka.event.VacationCancelEvent;
 import io.dd.test.core.kafka.event.VacationEvent;
 import io.dd.test.vacation.api.dto.CreateVacationRequestDto;
 import io.dd.test.vacation.api.dto.VacationRequestDto;
@@ -46,6 +48,15 @@ public class VacationService {
         VacationApprovedEvent event = new VacationApprovedEvent(request.getId());
 
         repository.save(request);
+        publisher.sendEvent(event);
+    }
+
+    @Transactional
+    public void processCancelCommand(VacationCancelCommand command) {
+        VacationRequest request = repository.findById(command.requestId()).orElseThrow();
+        request.setStatus(ProcessStatus.REJECTED);
+
+        VacationCancelEvent event = new VacationCancelEvent(command.requestId());
         publisher.sendEvent(event);
     }
 

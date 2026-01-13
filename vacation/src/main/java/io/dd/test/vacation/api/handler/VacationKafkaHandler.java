@@ -1,5 +1,6 @@
 package io.dd.test.vacation.api.handler;
 
+import io.dd.test.core.kafka.command.VacationCancelCommand;
 import io.dd.test.core.kafka.command.VacationCommand;
 import io.dd.test.vacation.service.VacationService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,12 @@ public class VacationKafkaHandler {
     public void handleCommand(VacationCommand command) {
         log.info("Got vacation command: {}", command);
         service.processCommand(command);
+    }
+
+    @KafkaHandler
+    public void handleCancelCommand(VacationCancelCommand command) {
+        log.info("Got vacation cancel command: {}", command);
+        service.processCancelCommand(command);
     }
 
 }
