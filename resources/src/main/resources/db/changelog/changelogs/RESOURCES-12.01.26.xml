@@ -18,6 +18,9 @@
             <column name="period_to" type="DATE">
                 <constraints nullable="false"/>
             </column>
+            <column name="status" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
     </changeSet>
