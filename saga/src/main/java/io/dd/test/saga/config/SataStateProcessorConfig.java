@@ -66,7 +66,7 @@ public class SataStateProcessorConfig {
     }
 
     private Object createApproveVacationCommand(AugmentedSagaState augmentedSagaState) {
-        return new VacationCommand(1L);
+        return new VacationCommand(augmentedSagaState.sagaData.requestId());
     }
 
     private Object createUpdateProfileCommand(AugmentedSagaState augmentedSagaState) {
