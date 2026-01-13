@@ -4,10 +4,13 @@ import io.dd.test.accounting.api.publisher.AccountingKafkaPublisher;
 import io.dd.test.accounting.persistence.model.AccountingRequest;
 import io.dd.test.accounting.persistence.model.AccountingStatus;
 import io.dd.test.accounting.persistence.repository.AccountingRequestRepository;
+import io.dd.test.core.kafka.command.AccountingCancelCommand;
 import io.dd.test.core.kafka.command.AccountingCommand;
+import io.dd.test.core.kafka.event.AccountingCanceledEvent;
 import io.dd.test.core.kafka.event.AccountingEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -33,6 +36,15 @@ public class AccountingService {
         }
 
         repository.save(request);
+        publisher.sendEvent(event);
+    }
+
+    @Transactional
+    public void processCancelCommand(AccountingCancelCommand command) {
+        AccountingRequest request = repository.findByRequestId(command.requestId()).orElseThrow();
+        request.setStatus(AccountingStatus.CANCELED);
+
+        AccountingCanceledEvent event = new AccountingCanceledEvent(command.requestId());
         publisher.sendEvent(event);
     }
 

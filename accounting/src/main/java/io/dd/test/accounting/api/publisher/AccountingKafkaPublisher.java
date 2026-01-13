@@ -1,5 +1,6 @@
 package io.dd.test.accounting.api.publisher;
 
+import io.dd.test.core.kafka.event.AccountingCanceledEvent;
 import io.dd.test.core.kafka.event.AccountingEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,11 @@ public class AccountingKafkaPublisher {
     private String sagaEventTopic;
 
     public CompletableFuture<SendResult<Long, Object>> sendEvent(AccountingEvent event) {
+        ProducerRecord<Long, Object> record = new ProducerRecord<>(sagaEventTopic, event.requestId(), event);
+        return sendRecord(record);
+    }
+
+    public CompletableFuture<SendResult<Long, Object>> sendEvent(AccountingCanceledEvent event) {
         ProducerRecord<Long, Object> record = new ProducerRecord<>(sagaEventTopic, event.requestId(), event);
         return sendRecord(record);
     }

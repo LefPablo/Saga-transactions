@@ -1,6 +1,7 @@
 package io.dd.test.accounting.api.handler;
 
 import io.dd.test.accounting.service.AccountingService;
+import io.dd.test.core.kafka.command.AccountingCancelCommand;
 import io.dd.test.core.kafka.command.AccountingCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,12 @@ public class AccountingKafkaHandler {
     public void handleCommand(AccountingCommand command) {
         log.info("Got accounting command: {}", command);
         service.processCommand(command);
+    }
+
+    @KafkaHandler
+    public void handleCancelCommand(AccountingCancelCommand command) {
+        log.info("Got accounting cancel command: {}", command);
+        service.processCancelCommand(command);
     }
 
 }
