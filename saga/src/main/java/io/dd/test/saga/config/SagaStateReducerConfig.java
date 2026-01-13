@@ -1,11 +1,7 @@
 package io.dd.test.saga.config;
 
 import io.dd.test.core.ProcessStatus;
-import io.dd.test.core.kafka.event.AccountingEvent;
-import io.dd.test.core.kafka.event.ProfilerEvent;
-import io.dd.test.core.kafka.event.ResourcesEvent;
-import io.dd.test.core.kafka.event.VacationApprovedEvent;
-import io.dd.test.core.kafka.event.VacationEvent;
+import io.dd.test.core.kafka.event.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +73,9 @@ public class SagaStateReducerConfig {
                                 case BUDGET_ALLOCATED -> handleAllocationState(currentState, event);
                                 case RESOURCES_PASSED -> handleResourcesState(currentState, event);
                                 case PROFILE_UPDATED -> handleProfilerState(currentState, event);
-                                //TODO add rest of statuses
+                                case BUDGET_FAILED, BUDGET_ALLOCATION_CANCELED -> handleAllocationFailedOrCanceledState(currentState, event);
+                                case RESOURCES_FAILED, RESOURCES_CANCELED -> handleResourcesFailedOrCanceledState(currentState, event);
+                                case PROFILE_UPDATE_FAILED -> handleProfilerFailedState(currentState, event);
                                 default -> updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
                             };
                         },
@@ -85,6 +83,27 @@ public class SagaStateReducerConfig {
                                 .withKeySerde(keySerde)
                                 .withValueSerde(sagaStateSerde)
                 );
+    }
+
+    private SagaState handleProfilerFailedState(SagaState currentState, Object event) {
+        if (event instanceof ResourcesCancelEvent) {
+            return updateSagaState(currentState, ProcessStatus.RESOURCES_CANCELED);
+        }
+        return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
+    }
+
+    private SagaState handleResourcesFailedOrCanceledState(SagaState currentState, Object event) {
+        if (event instanceof AccountingCanceledEvent) {
+            return updateSagaState(currentState, ProcessStatus.BUDGET_ALLOCATION_CANCELED);
+        }
+        return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
+    }
+
+    private SagaState handleAllocationFailedOrCanceledState(SagaState currentState, Object event) {
+        if (event instanceof VacationCancelEvent) {
+            return updateSagaState(currentState, ProcessStatus.REJECTED);
+        }
+        return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
     }
 
     private SagaState handleProfilerState(SagaState currentState, Object event) {
@@ -95,26 +114,35 @@ public class SagaStateReducerConfig {
     }
 
     private SagaState handleResourcesState(SagaState currentState, Object event) {
-        if (event instanceof ProfilerEvent) {
-            return updateSagaState(currentState, ProcessStatus.PROFILE_UPDATED);
+        if (event instanceof ProfilerEvent(Long requestId, Boolean updated)) {
+            if (updated) {
+                return updateSagaState(currentState, ProcessStatus.PROFILE_UPDATED);
+            } else {
+                return updateSagaState(currentState, ProcessStatus.PROFILE_UPDATE_FAILED, "profile update failed: " + requestId);
+            }
         }
         return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
     }
 
     private SagaState handleAllocationState(SagaState currentState, Object event) {
-        if (event instanceof ResourcesEvent) {
-            return updateSagaState(currentState, ProcessStatus.RESOURCES_PASSED);
+        if (event instanceof ResourcesEvent(Long requestId, Boolean passed)) {
+            if (passed) {
+                return updateSagaState(currentState, ProcessStatus.RESOURCES_PASSED);
+            } else {
+                return updateSagaState(currentState, ProcessStatus.RESOURCES_FAILED, "resources check failed: " + requestId);
+            }
         }
         return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
     }
 
     private SagaState handleCreatedState(SagaState currentState, Object event) {
-        if (event instanceof AccountingEvent) {
-            return updateSagaState(currentState, ProcessStatus.BUDGET_ALLOCATED);
+        if (event instanceof AccountingEvent(Long requestId, Boolean allocated)) {
+            if (allocated) {
+                return updateSagaState(currentState, ProcessStatus.BUDGET_ALLOCATED);
+            } else {
+                return updateSagaState(currentState, ProcessStatus.BUDGET_FAILED, "budget allocation failed: " + requestId);
+            }
         }
-//        } else if (event instanceof AccountingFailedEvent) {
-//            return updateSagaState(currentState, ProcessStatus.BUDGET_FAILED, "budget allocation failed: " + "requestId");
-//          }
         return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
     }
 

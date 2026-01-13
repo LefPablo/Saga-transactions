@@ -1,10 +1,6 @@
 package io.dd.test.saga.config;
 
-import io.dd.test.core.kafka.command.AccountingCommand;
-import io.dd.test.core.kafka.command.ProfilerCommand;
-import io.dd.test.core.kafka.command.ResourcesCommand;
-import io.dd.test.core.kafka.command.VacationApproveCommand;
-import io.dd.test.core.kafka.command.VacationCommand;
+import io.dd.test.core.kafka.command.*;
 import io.dd.test.core.kafka.event.VacationEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,12 +41,28 @@ public class SataStateProcessorConfig {
                     case BUDGET_ALLOCATED -> List.of(createCheckResourcesCommand(augmentedSagaState));
                     case RESOURCES_PASSED -> List.of(createUpdateProfileCommand(augmentedSagaState));
                     case PROFILE_UPDATED -> List.of(createApproveVacationCommand(augmentedSagaState));
+                    case PROFILE_UPDATE_FAILED -> List.of(createResourcesCancelCommand(augmentedSagaState));
+                    case RESOURCES_FAILED, RESOURCES_CANCELED -> List.of(createAccountingCancelCommand(augmentedSagaState));
+                    case BUDGET_FAILED, BUDGET_ALLOCATION_CANCELED -> List.of(createVacationCancelCommand(augmentedSagaState));
                     default -> List.of(); //handle illegal state logic
                 });
 
         sendCommands(commandStream, vacationCommandTopic, profilerCommandTopic, accountingCommandTopic, resourcesCommandTopic);
 
         return commandStream;
+    }
+
+    private Object createVacationCancelCommand(AugmentedSagaState augmentedSagaState) {
+        return new VacationCancelCommand(augmentedSagaState.sagaData.requestId());
+
+    }
+
+    private Object createAccountingCancelCommand(AugmentedSagaState augmentedSagaState) {
+        return new AccountingCancelCommand(augmentedSagaState.sagaData.requestId());
+    }
+
+    private Object createResourcesCancelCommand(AugmentedSagaState augmentedSagaState) {
+        return new ResourcesCancelCommand(augmentedSagaState.sagaData.requestId());
     }
 
     private Object createApproveVacationCommand(AugmentedSagaState augmentedSagaState) {
@@ -70,13 +82,13 @@ public class SataStateProcessorConfig {
     }
 
     private void sendCommands(KStream<Long, Object> commandStream, String vacationCommandTopic, String profilerCommandTopic, String accountingCommandTopic, String resourcesCommandTopic) {
-        commandStream.filter((key, command) -> command instanceof VacationCommand || command instanceof VacationApproveCommand) //TODO add failed command
+        commandStream.filter((key, command) -> command instanceof VacationCommand || command instanceof VacationCancelCommand)
                 .to(vacationCommandTopic, Produced.with(keySerde, sagaCommandSerde));
-        commandStream.filter((key, command) -> command instanceof AccountingCommand)
+        commandStream.filter((key, command) -> command instanceof AccountingCommand || command instanceof AccountingCancelCommand)
                 .to(accountingCommandTopic, Produced.with(keySerde, sagaCommandSerde));
-        commandStream.filter((key, command) -> command instanceof ResourcesCommand) //TODO add failed command
+        commandStream.filter((key, command) -> command instanceof ResourcesCommand || command instanceof ResourcesCancelCommand)
                 .to(resourcesCommandTopic, Produced.with(keySerde, sagaCommandSerde));
-        commandStream.filter((key, command) -> command instanceof ProfilerCommand) //TODO add failed command
+        commandStream.filter((key, command) -> command instanceof ProfilerCommand)
                 .to(profilerCommandTopic, Produced.with(keySerde, sagaCommandSerde));
     }
 
