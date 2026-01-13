@@ -1,6 +1,16 @@
 spring:
   application:
     name: saga
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP}
+    streams:
+      properties:
+        processing.guarantee: exactly_once_v2
+        spring.json.trusted.packages: "*"
+
+server:
+  port: 9005
+
 app:
   kafka:
     topics:

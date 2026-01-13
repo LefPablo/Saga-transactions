@@ -1,6 +1,9 @@
 package io.dd.test.saga.config;
 
 import io.dd.test.core.kafka.command.AccountingCommand;
+import io.dd.test.core.kafka.command.ProfilerCommand;
+import io.dd.test.core.kafka.command.ResourcesCommand;
+import io.dd.test.core.kafka.command.VacationApproveCommand;
 import io.dd.test.core.kafka.command.VacationCommand;
 import io.dd.test.core.kafka.event.VacationEvent;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +15,14 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafkaStreams;
 
 import java.util.List;
 
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableKafkaStreams
 public class SataStateProcessorConfig {
 
     private final Serde<Long> keySerde;
@@ -31,26 +36,48 @@ public class SataStateProcessorConfig {
                                                     @Value("${app.kafka.topics.accounting-command.name}") String accountingCommandTopic,
                                                     @Value("${app.kafka.topics.resources-command.name}") String resourcesCommandTopic
                                                     ) {
-        KStream<Long, Object> commandStream = sagaStateTable.toStream()
+        KStream<Long, Object> commandStream = sagaStateTable
+                .toStream()
                 .join(sagaDataTable, AugmentedSagaState::new)
-                .flatMapValues((sagaId, augmentedSagaState) -> switch (augmentedSagaState.state.status()) {
+                .peek((key, command) -> log.info("Sending command: {} for sagaId: {}", command.getClass().getSimpleName(), key))
+                .flatMapValues((sagaId, augmentedSagaState) -> switch ((augmentedSagaState.state).status()) {
                     case CREATED -> List.of(createAllocateBudgetCommand(augmentedSagaState));
+                    case BUDGET_ALLOCATED -> List.of(createCheckResourcesCommand(augmentedSagaState));
+                    case RESOURCES_PASSED -> List.of(createUpdateProfileCommand(augmentedSagaState));
+                    case PROFILE_UPDATED -> List.of(createApproveVacationCommand(augmentedSagaState));
                     default -> List.of(); //handle illegal state logic
-                })
-                .peek((key, command) -> log.info("Sending command: {} for sagaId: {}", command.getClass().getSimpleName(), key));
+                });
 
         sendCommands(commandStream, vacationCommandTopic, profilerCommandTopic, accountingCommandTopic, resourcesCommandTopic);
 
         return commandStream;
     }
 
-    private void sendCommands(KStream<Long, Object> commandStream, String vacationCommandTopic, String profilerCommandTopic, String accountingCommandTopic, String resourcesCommandTopic) {
-        commandStream.filter((key, command) -> command instanceof VacationCommand) //TODO add failed command
-                .to(vacationCommandTopic, Produced.with(keySerde, sagaCommandSerde));
+    private Object createApproveVacationCommand(AugmentedSagaState augmentedSagaState) {
+        return new VacationCommand(1L);
+    }
+
+    private Object createUpdateProfileCommand(AugmentedSagaState augmentedSagaState) {
+        return new ProfilerCommand(augmentedSagaState.sagaData.requestId(), augmentedSagaState.sagaData.cvUuid());
+    }
+
+    private Object createCheckResourcesCommand(AugmentedSagaState augmentedSagaState) {
+        return new ResourcesCommand(augmentedSagaState.sagaData.requestId(), augmentedSagaState.sagaData.periodFrom(), augmentedSagaState.sagaData.periodTo());
     }
 
     private Object createAllocateBudgetCommand(AugmentedSagaState augmentedSagaState) {
         return new AccountingCommand(augmentedSagaState.sagaData.requestId(), augmentedSagaState.sagaData.budget());
+    }
+
+    private void sendCommands(KStream<Long, Object> commandStream, String vacationCommandTopic, String profilerCommandTopic, String accountingCommandTopic, String resourcesCommandTopic) {
+        commandStream.filter((key, command) -> command instanceof VacationCommand || command instanceof VacationApproveCommand) //TODO add failed command
+                .to(vacationCommandTopic, Produced.with(keySerde, sagaCommandSerde));
+        commandStream.filter((key, command) -> command instanceof AccountingCommand)
+                .to(accountingCommandTopic, Produced.with(keySerde, sagaCommandSerde));
+        commandStream.filter((key, command) -> command instanceof ResourcesCommand) //TODO add failed command
+                .to(resourcesCommandTopic, Produced.with(keySerde, sagaCommandSerde));
+        commandStream.filter((key, command) -> command instanceof ProfilerCommand) //TODO add failed command
+                .to(profilerCommandTopic, Produced.with(keySerde, sagaCommandSerde));
     }
 
     private record AugmentedSagaState(SagaState state, VacationEvent sagaData) {}

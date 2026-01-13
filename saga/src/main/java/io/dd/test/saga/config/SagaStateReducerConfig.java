@@ -2,7 +2,11 @@ package io.dd.test.saga.config;
 
 import io.dd.test.core.ProcessStatus;
 import io.dd.test.core.kafka.event.AccountingEvent;
+import io.dd.test.core.kafka.event.ProfilerEvent;
+import io.dd.test.core.kafka.event.ResourcesEvent;
+import io.dd.test.core.kafka.event.VacationApprovedEvent;
 import io.dd.test.core.kafka.event.VacationEvent;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
@@ -15,14 +19,17 @@ import org.apache.kafka.streams.state.Stores;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafkaStreams;
 
 import java.util.Set;
 
 import static io.dd.test.core.ProcessStatus.CREATED;
 
+@Getter
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
+@EnableKafkaStreams
 public class SagaStateReducerConfig {
 
     public static final String SAGA_STATE_STORE = "saga-state-store";
@@ -31,17 +38,14 @@ public class SagaStateReducerConfig {
     private final Serde<Long> keySerde;
     private final Serde<Object> sagaEventSerde; //TODO
     private final Serde<SagaState> sagaStateSerde;
-    private final Serde<VacationEvent> requestCreatedEventSerdeSerde;
+    private final Serde<VacationEvent> vacationEventSerde;
 
     @Bean
     public KStream<Long, Object> sagaEventStream(StreamsBuilder streamsBuilder,
-                                          @Value("${app.kafka.topics.vacation-event.name}") String vacationEventTopic,
-                                          @Value("${app.kafka.topics.profiler-event.name}") String profilerEventTopic,
-                                          @Value("${app.kafka.topics.accounting-event.name}") String accountingEventTopic,
-                                          @Value("${app.kafka.topics.resources-event.name}") String resourcesEventTopic
+                                          @Value("${app.kafka.topics.saga-event.name}") String sagaEventTopic
                                           ) {
         return streamsBuilder.stream(
-                Set.of(vacationEventTopic, profilerEventTopic, accountingEventTopic, resourcesEventTopic),
+                Set.of(sagaEventTopic),
                 Consumed.with(keySerde, sagaEventSerde)
         );
     }
@@ -53,7 +57,7 @@ public class SagaStateReducerConfig {
                 .mapValues((value) -> (VacationEvent) value)
                 .toTable(Materialized.<Long, VacationEvent>as(Stores.inMemoryKeyValueStore(SAGA_DATA_STORE))
                         .withKeySerde(keySerde)
-                        .withValueSerde(requestCreatedEventSerdeSerde));
+                        .withValueSerde(vacationEventSerde));
     }
 
     @Bean
@@ -70,6 +74,9 @@ public class SagaStateReducerConfig {
 
                             return switch (currentState.status()) {
                                 case CREATED -> handleCreatedState(currentState, event);
+                                case BUDGET_ALLOCATED -> handleAllocationState(currentState, event);
+                                case RESOURCES_PASSED -> handleResourcesState(currentState, event);
+                                case PROFILE_UPDATED -> handleProfilerState(currentState, event);
                                 //TODO add rest of statuses
                                 default -> updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
                             };
@@ -78,6 +85,27 @@ public class SagaStateReducerConfig {
                                 .withKeySerde(keySerde)
                                 .withValueSerde(sagaStateSerde)
                 );
+    }
+
+    private SagaState handleProfilerState(SagaState currentState, Object event) {
+        if (event instanceof VacationApprovedEvent) {
+            return updateSagaState(currentState, ProcessStatus.APPROVED);
+        }
+        return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
+    }
+
+    private SagaState handleResourcesState(SagaState currentState, Object event) {
+        if (event instanceof ProfilerEvent) {
+            return updateSagaState(currentState, ProcessStatus.PROFILE_UPDATED);
+        }
+        return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
+    }
+
+    private SagaState handleAllocationState(SagaState currentState, Object event) {
+        if (event instanceof ResourcesEvent) {
+            return updateSagaState(currentState, ProcessStatus.RESOURCES_PASSED);
+        }
+        return updateSagaState(currentState, ProcessStatus.ILLEGAL_STATE);
     }
 
     private SagaState handleCreatedState(SagaState currentState, Object event) {
