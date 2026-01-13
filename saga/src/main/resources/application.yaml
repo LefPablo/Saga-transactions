@@ -1,3 +1,27 @@
 spring:
   application:
     name: saga
+app:
+  kafka:
+    topics:
+      saga-event:
+        name: "dd.saga.event"
+        partitions: 3
+        replicas: 3
+        min-in-sync-replicas: 2
+      vacation-command:
+        name: "dd.vacation.command"
+      profiler-command:
+        name: "dd.profiler.command"
+      accounting-command:
+        name: "dd.accounting.command"
+      resources-command:
+        name: "dd.resources.command"
+      vacation-event:
+        name: "dd.vacation.event"
+      profiler-event:
+        name: "dd.profiler.event"
+      accounting-event:
+        name: "dd.accounting.event"
+      resources-event:
+        name: "dd.resources.event"
