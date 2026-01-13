@@ -2,6 +2,7 @@ package io.dd.test.vacation.service;
 
 import io.dd.test.core.ProcessStatus;
 import io.dd.test.core.kafka.command.VacationCommand;
+import io.dd.test.core.kafka.event.VacationApprovedEvent;
 import io.dd.test.core.kafka.event.VacationEvent;
 import io.dd.test.vacation.api.dto.CreateVacationRequestDto;
 import io.dd.test.vacation.api.dto.VacationRequestDto;
@@ -23,10 +24,9 @@ public class VacationService {
 
     public VacationRequestDto createRequest(CreateVacationRequestDto createRequest) {
         VacationRequest request = mapper.toEntity(createRequest, ProcessStatus.CREATED);
+        request = repository.save(request);
 
         VacationEvent event = mapper.toEvent(request);
-
-        request = repository.save(request);
         publisher.sendEvent(event);
 
         return mapper.toDto(request);
@@ -41,9 +41,9 @@ public class VacationService {
     @Transactional
     public void processCommand(VacationCommand command) {
         VacationRequest request = repository.findById(command.requestId()).orElseThrow();
-        request.setStatus(command.status());
+        request.setStatus(ProcessStatus.APPROVED);
 
-        VacationEvent event = mapper.toEvent(request);
+        VacationApprovedEvent event = new VacationApprovedEvent(request.getId());
 
         repository.save(request);
         publisher.sendEvent(event);
