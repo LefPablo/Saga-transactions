@@ -15,14 +15,14 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP}
     producer:
       acks: all
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         linger.ms: 100
         enable.idempotence: true
     consumer:
       group-id: dd-${spring.application.name}-consumer-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       isolation-level: read_committed
       properties:
