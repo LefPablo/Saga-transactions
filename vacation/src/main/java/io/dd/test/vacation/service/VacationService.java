@@ -24,7 +24,10 @@ public class VacationService {
     public VacationRequestDto createRequest(CreateVacationRequestDto createRequest) {
         VacationRequest request = mapper.toEntity(createRequest, ProcessStatus.CREATED);
 
+        VacationEvent event = mapper.toEvent(request);
+
         request = repository.save(request);
+        publisher.sendEvent(event);
 
         return mapper.toDto(request);
     }
