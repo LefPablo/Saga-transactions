@@ -1,5 +1,6 @@
 package io.dd.test.resources.api.publisher;
 
+import io.dd.test.core.kafka.event.ResourcesCancelEvent;
 import io.dd.test.core.kafka.event.ResourcesEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,11 @@ public class ResourcesKafkaPublisher {
     private String sagaEventTopic;
 
     public CompletableFuture<SendResult<Long, Object>> sendEvent(ResourcesEvent event) {
+        ProducerRecord<Long, Object> record = new ProducerRecord<>(sagaEventTopic, event.requestId(), event);
+        return sendRecord(record);
+    }
+
+    public CompletableFuture<SendResult<Long, Object>> sendEvent(ResourcesCancelEvent event) {
         ProducerRecord<Long, Object> record = new ProducerRecord<>(sagaEventTopic, event.requestId(), event);
         return sendRecord(record);
     }

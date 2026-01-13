@@ -1,5 +1,6 @@
 package io.dd.test.resources.api.handler;
 
+import io.dd.test.core.kafka.command.ResourcesCancelCommand;
 import io.dd.test.core.kafka.command.ResourcesCommand;
 import io.dd.test.resources.service.ResourcesService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,12 @@ public class ResourcesKafkaHandler {
     public void handleCommand(ResourcesCommand command) {
         log.info("Got resources command: {}", command);
         service.processCommand(command);
+    }
+
+    @KafkaHandler
+    public void handleCancelCommand(ResourcesCancelCommand command) {
+        log.info("Got resources cancel command: {}", command);
+        service.processCancelCommand(command);
     }
 
 }
