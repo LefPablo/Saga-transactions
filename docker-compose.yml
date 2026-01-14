@@ -2,6 +2,17 @@ x-common: &kafka-image
   image: bitnamilegacy/kafka:3.3.2
 
 services:
+  vacation:
+    build:
+      context: .
+      dockerfile: vacation/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP: "kafka-1:9090,kafka-2:9090,kafka-3:9090"
+      DATABASE_URL: jdbc:postgresql://db:5432/${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - 9001:9001
   accounting:
     build:
       context: .
@@ -11,6 +22,30 @@ services:
       DATABASE_URL: jdbc:postgresql://db:5432/${DATABASE_NAME}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+  resources:
+    build:
+      context: .
+      dockerfile: resources/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP: "kafka-1:9090,kafka-2:9090,kafka-3:9090"
+      DATABASE_URL: jdbc:postgresql://db:5432/${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+  profiler:
+    build:
+      context: .
+      dockerfile: profiler/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP: "kafka-1:9090,kafka-2:9090,kafka-3:9090"
+      DATABASE_URL: jdbc:postgresql://db:5432/${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+  saga:
+    build:
+      context: .
+      dockerfile: saga/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP: "kafka-1:9090,kafka-2:9090,kafka-3:9090"
   db:
     image: postgres:17-alpine
     restart: always
