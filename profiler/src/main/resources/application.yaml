@@ -30,9 +30,13 @@ spring:
         spring.json.trusted.packages: "io.dd.test.core.kafka.*"
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
 
-
 server:
   port: 9004
+
+logging:
+  level:
+    root: WARN
+    io.dd.test: INFO
 
 app:
   kafka:

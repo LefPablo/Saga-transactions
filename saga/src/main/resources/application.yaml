@@ -12,6 +12,11 @@ spring:
 server:
   port: 9005
 
+logging:
+  level:
+    root: WARN
+    io.dd.test: INFO
+
 app:
   kafka:
     topics:
