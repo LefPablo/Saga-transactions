@@ -4,6 +4,7 @@ import io.dd.test.core.kafka.command.ResourcesCancelCommand;
 import io.dd.test.core.kafka.command.ResourcesCommand;
 import io.dd.test.core.kafka.event.ResourcesCancelEvent;
 import io.dd.test.core.kafka.event.ResourcesEvent;
+import io.dd.test.resources.api.exception.ResourceNotFoundException;
 import io.dd.test.resources.api.publisher.ResourcesKafkaPublisher;
 import io.dd.test.resources.persistence.model.ResourcesRequest;
 import io.dd.test.resources.persistence.model.ResourcesStatus;
@@ -42,7 +43,8 @@ public class ResourcesService {
 
     @Transactional
     public void processCancelCommand(ResourcesCancelCommand command) {
-        ResourcesRequest request = repository.findByRequestId(command.requestId()).orElseThrow();
+        ResourcesRequest request = repository.findByRequestId(command.requestId())
+                .orElseThrow(() -> new ResourceNotFoundException("Can't find resources check for request id:" + command.requestId()));
         request.setStatus(ResourcesStatus.CANCELED);
 
         ResourcesCancelEvent event = new ResourcesCancelEvent(command.requestId());

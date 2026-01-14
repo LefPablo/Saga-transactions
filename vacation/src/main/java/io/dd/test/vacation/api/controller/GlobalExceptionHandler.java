@@ -2,7 +2,6 @@ package io.dd.test.vacation.api.controller;
 
 import io.dd.test.vacation.api.exception.ErrorResponse;
 import io.dd.test.vacation.api.exception.ResourceNotFoundException;
-import io.dd.test.vacation.api.exception.VacationServiceException;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -43,7 +42,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handlerVacationServiceException(VacationServiceException exception) {
+    public ErrorResponse handlerVacationServiceException(RuntimeException exception) {
         return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
     }
 

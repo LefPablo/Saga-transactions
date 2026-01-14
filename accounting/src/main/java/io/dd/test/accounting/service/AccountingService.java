@@ -1,5 +1,6 @@
 package io.dd.test.accounting.service;
 
+import io.dd.test.accounting.api.exception.ResourceNotFoundException;
 import io.dd.test.accounting.api.publisher.AccountingKafkaPublisher;
 import io.dd.test.accounting.persistence.model.AccountingRequest;
 import io.dd.test.accounting.persistence.model.AccountingStatus;
@@ -41,7 +42,8 @@ public class AccountingService {
 
     @Transactional
     public void processCancelCommand(AccountingCancelCommand command) {
-        AccountingRequest request = repository.findByRequestId(command.requestId()).orElseThrow();
+        AccountingRequest request = repository.findByRequestId(command.requestId())
+                .orElseThrow(() -> new ResourceNotFoundException("Can't find accounting allocation for request id:" + command.requestId()));
         request.setStatus(AccountingStatus.CANCELED);
 
         AccountingCanceledEvent event = new AccountingCanceledEvent(command.requestId());
