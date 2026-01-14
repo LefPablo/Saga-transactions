@@ -18,6 +18,7 @@ spring:
       acks: all
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      transaction-id-prefix: tx-${spring.application.name}-${random.uuid}
       properties:
         linger.ms: 100
         enable.idempotence: true

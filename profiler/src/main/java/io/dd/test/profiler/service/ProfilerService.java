@@ -8,6 +8,7 @@ import io.dd.test.profiler.persistence.model.ProfilerStatus;
 import io.dd.test.profiler.persistence.repository.ProfilerRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class ProfilerService {
     private final ProfilerKafkaPublisher publisher;
     private static final UUID NIL_UUID = new UUID(0L, 0L);
 
-    //TODO joint transaction or outbox pattern
+    @Transactional
     public void processCommand(ProfilerCommand command) {
         ProfilerRequest request = new ProfilerRequest();
         request.setRequestId(command.requestId());

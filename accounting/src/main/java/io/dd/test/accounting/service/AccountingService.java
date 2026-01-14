@@ -21,7 +21,7 @@ public class AccountingService {
     private final AccountingRequestRepository repository;
     private final AccountingKafkaPublisher publisher;
 
-    //TODO joint transaction or outbox pattern
+    @Transactional
     public void processCommand(AccountingCommand command) {
         AccountingRequest request = new AccountingRequest();
         request.setRequestId(command.requestId());

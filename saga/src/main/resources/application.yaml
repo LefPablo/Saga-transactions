@@ -6,6 +6,7 @@ spring:
     streams:
       properties:
         processing.guarantee: exactly_once_v2
+        isolation.level: read_committed
         spring.json.trusted.packages: "*"
 
 server:

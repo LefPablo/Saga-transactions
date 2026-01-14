@@ -21,7 +21,7 @@ public class ResourcesService {
     private final ResourcesRequestRepository repository;
     private final ResourcesKafkaPublisher publisher;
 
-    //TODO joint transaction or outbox pattern
+    @Transactional
     public void processCommand(ResourcesCommand command) {
         ResourcesRequest request = new ResourcesRequest();
         request.setRequestId(command.requestId());

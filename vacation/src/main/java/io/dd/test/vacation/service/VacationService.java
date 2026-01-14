@@ -25,6 +25,7 @@ public class VacationService {
     private final VacationKafkaPublisher publisher;
     private final VacationRequestMapper mapper;
 
+    @Transactional
     public VacationRequestDto createRequest(CreateVacationRequestDto createRequest) {
         VacationRequest request = mapper.toEntity(createRequest, ProcessStatus.CREATED);
         request = repository.save(request);

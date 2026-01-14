@@ -66,7 +66,7 @@ public class SataStateProcessorConfig {
     }
 
     private Object createApproveVacationCommand(AugmentedSagaState augmentedSagaState) {
-        return new VacationCommand(augmentedSagaState.sagaData.requestId());
+        return new VacationApproveCommand(augmentedSagaState.sagaData.requestId());
     }
 
     private Object createUpdateProfileCommand(AugmentedSagaState augmentedSagaState) {
@@ -82,7 +82,7 @@ public class SataStateProcessorConfig {
     }
 
     private void sendCommands(KStream<Long, Object> commandStream, String vacationCommandTopic, String profilerCommandTopic, String accountingCommandTopic, String resourcesCommandTopic) {
-        commandStream.filter((key, command) -> command instanceof VacationCommand || command instanceof VacationCancelCommand)
+        commandStream.filter((key, command) -> command instanceof VacationApproveCommand || command instanceof VacationCancelCommand)
                 .to(vacationCommandTopic, Produced.with(keySerde, sagaCommandSerde));
         commandStream.filter((key, command) -> command instanceof AccountingCommand || command instanceof AccountingCancelCommand)
                 .to(accountingCommandTopic, Produced.with(keySerde, sagaCommandSerde));
