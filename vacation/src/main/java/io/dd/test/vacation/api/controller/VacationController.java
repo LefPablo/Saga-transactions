@@ -3,6 +3,7 @@ package io.dd.test.vacation.api.controller;
 import io.dd.test.vacation.api.dto.CreateVacationRequestDto;
 import io.dd.test.vacation.api.dto.VacationRequestDto;
 import io.dd.test.vacation.service.VacationControllerService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,18 +28,34 @@ public class VacationController {
     private final VacationControllerService service;
 
     @PostMapping("/request")
+    @Operation(
+            summary = "Create a new vacation request",
+            description = "Creates a new vacation request for an employee<br>" +
+                    "<strong>To simulate fail on specific service set following values:</strong><br>" +
+                    "for accounting set budget > 100<br>" +
+                    "for resources set time that periodTo - periodFrom > 25 days<br>" +
+                    "for profiler set cvUuid to 00000000-0000-0000-0000-000000000000"
+    )
     public VacationRequestDto createVacationRequest(@Valid @RequestBody CreateVacationRequestDto createRequest) {
         log.info("Create vacation request: {}", createRequest);
         return service.createRequest(createRequest);
     }
 
     @GetMapping("/request/{requestId}")
+    @Operation(
+            summary = "Get vacation request by ID",
+            description = "Retrieves detailed information about a specific vacation request"
+    )
     public VacationRequestDto getVacationRequest(@PathVariable Long requestId) {
         log.info("Get vacation request by id: {}", requestId);
         return service.getRequest(requestId);
     }
 
     @GetMapping("/request")
+    @Operation(
+            summary = "Get vacation requests page by query params",
+            description = "Retrieves page of detailed information about vacation requests by query params"
+    )
     public Page<VacationRequestDto> getVacationRequests(@RequestParam(name = "queryParams", required = false) List<String> queryParams, Pageable pageable) {
         log.info("Get vacation requests by query: {}", queryParams);
         return service.getRequestsByQuery(queryParams, pageable);
