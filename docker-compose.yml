@@ -2,6 +2,15 @@ x-common: &kafka-image
   image: bitnamilegacy/kafka:3.3.2
 
 services:
+  accounting:
+    build:
+      context: .
+      dockerfile: accounting/Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP: "kafka-1:9090,kafka-2:9090,kafka-3:9090"
+      DATABASE_URL: jdbc:postgresql://db:5432/${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
   db:
     image: postgres:17-alpine
     restart: always
