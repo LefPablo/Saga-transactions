@@ -1,5 +1,6 @@
 package io.dd.test.vacation.api.controller;
 
+import io.dd.test.core.saga.SagaState;
 import io.dd.test.vacation.api.dto.CreateVacationRequestDto;
 import io.dd.test.vacation.api.dto.VacationRequestDto;
 import io.dd.test.vacation.service.VacationControllerService;
@@ -52,6 +53,16 @@ public class VacationController {
     public VacationRequestDto getVacationRequest(@PathVariable Long requestId) {
         log.info("Get vacation request by id: {}", requestId);
         return service.getRequest(requestId);
+    }
+
+    @GetMapping("/request/{requestId}/history")
+    @Operation(
+            summary = "Get vacation request history by ID",
+            description = "Retrieves detailed information about a specific vacation request history"
+    )
+    public List<SagaState> getVacationRequestHistory(@PathVariable Long requestId) {
+        log.info("Get vacation request history by id: {}", requestId);
+        return service.getRequestHistory(requestId);
     }
 
     @GetMapping("/request")

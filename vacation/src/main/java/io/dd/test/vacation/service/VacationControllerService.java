@@ -2,12 +2,16 @@ package io.dd.test.vacation.service;
 
 import io.dd.test.core.ProcessStatus;
 import io.dd.test.core.kafka.event.VacationEvent;
+import io.dd.test.core.saga.SagaState;
 import io.dd.test.vacation.api.dto.CreateVacationRequestDto;
 import io.dd.test.vacation.api.dto.VacationRequestDto;
 import io.dd.test.vacation.api.exception.ResourceNotFoundException;
 import io.dd.test.vacation.api.publisher.VacationKafkaPublisher;
 import io.dd.test.vacation.mapper.VacationRequestMapper;
+import io.dd.test.vacation.mapper.VacationRequestStateMapper;
 import io.dd.test.vacation.persistence.model.VacationRequest;
+import io.dd.test.vacation.persistence.model.VacationRequestState;
+import io.dd.test.vacation.persistence.repository.VacationRequestHistoryRepository;
 import io.dd.test.vacation.persistence.repository.VacationRequestRepository;
 import io.dd.test.vacation.persistence.specification.SearchCriteria;
 import io.dd.test.vacation.persistence.specification.VacationRequestSpecification;
@@ -26,25 +30,27 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class VacationControllerService {
 
-    private final VacationRequestRepository repository;
+    private final VacationRequestRepository requestRepository;
+    private final VacationRequestHistoryRepository requestHistoryRepository;
     private final VacationKafkaPublisher publisher;
-    private final VacationRequestMapper mapper;
+    private final VacationRequestMapper requestMapper;
+    private final VacationRequestStateMapper requestStateMapper;
 
     @Transactional
     public VacationRequestDto createRequest(CreateVacationRequestDto createRequest) {
-        VacationRequest request = mapper.toEntity(createRequest, ProcessStatus.CREATED);
-        request = repository.save(request);
+        VacationRequest request = requestMapper.toEntity(createRequest, ProcessStatus.CREATED);
+        request = requestRepository.save(request);
 
-        VacationEvent event = mapper.toEvent(request);
+        VacationEvent event = requestMapper.toEvent(request);
         publisher.sendEvent(event);
 
-        return mapper.toDto(request);
+        return requestMapper.toDto(request);
     }
 
     public VacationRequestDto getRequest(Long requestId) {
-        VacationRequest request = repository.findById(requestId)
+        VacationRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new ResourceNotFoundException("Can't find vacation request by id:" + requestId));
-        return mapper.toDto(request);
+        return requestMapper.toDto(request);
     }
 
     public Page<VacationRequestDto> getRequestsByQuery(List<String> queryParams, Pageable pageable) {
@@ -57,8 +63,12 @@ public class VacationControllerService {
             }
         }
 
-        Page<VacationRequest> results = repository.findAll(spec, pageable);
-        return results.map(mapper::toDto);
+        Page<VacationRequest> results = requestRepository.findAll(spec, pageable);
+        return results.map(requestMapper::toDto);
     }
 
+    public List<SagaState> getRequestHistory(Long requestId) {
+        List<VacationRequestState> requestStates = requestHistoryRepository.findAllById_RequestIdOrderById_CreatedAtDesc(requestId);
+        return requestStates.stream().map(requestStateMapper::toSagaState).toList();
+    }
 }
