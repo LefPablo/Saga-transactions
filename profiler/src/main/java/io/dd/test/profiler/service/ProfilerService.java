@@ -28,10 +28,10 @@ public class ProfilerService {
         request.setRequestId(command.requestId());
         request.setCvUuid(command.cvUuid());
 
-        boolean updated = ! command.cvUuid().equals(NIL_UUID);
         boolean failOnCounter = counter.incrementAndGet() % 5 == 0;
+        boolean updated = ! command.cvUuid().equals(NIL_UUID) && ! failOnCounter;
         ProfilerEvent event = new ProfilerEvent(command.requestId(), updated);
-        if (updated && ! failOnCounter) {
+        if (updated) {
             request.setStatus(ProfilerStatus.UPDATED);
         } else {
             request.setStatus(ProfilerStatus.FAILED);
