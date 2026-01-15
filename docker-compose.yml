@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: vacation/Dockerfile
+    restart: on-failure
     environment:
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
       DATABASE_URL: ${DATABASE_URL_DOCKER}
@@ -22,6 +23,7 @@ services:
     build:
       context: .
       dockerfile: accounting/Dockerfile
+    restart: on-failure
     environment:
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
       DATABASE_URL: ${DATABASE_URL_DOCKER}
@@ -36,6 +38,7 @@ services:
     build:
       context: .
       dockerfile: resources/Dockerfile
+    restart: on-failure
     environment:
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
       DATABASE_URL: ${DATABASE_URL_DOCKER}
@@ -50,6 +53,7 @@ services:
     build:
       context: .
       dockerfile: profiler/Dockerfile
+    restart: on-failure
     environment:
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
       DATABASE_URL: ${DATABASE_URL_DOCKER}
@@ -64,6 +68,7 @@ services:
     build:
       context: .
       dockerfile: saga/Dockerfile
+    restart: on-failure
     environment:
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
     depends_on:
