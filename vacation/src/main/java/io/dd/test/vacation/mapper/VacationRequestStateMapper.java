@@ -10,5 +10,6 @@ import org.mapstruct.MappingConstants;
 public interface VacationRequestStateMapper {
 
     SagaState toSagaState(VacationRequestState requestState);
+    VacationRequestState toEntity(SagaState state);
 
 }

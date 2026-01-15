@@ -43,6 +43,8 @@ app:
     topics:
       saga-event:
         name: "dd.saga.event"
+      saga-state:
+        name: "saga-saga-state-store-changelog"
       vacation-command:
         name: "dd.vacation.command"
         partitions: 3
