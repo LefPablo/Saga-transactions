@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface VacationRequestHistoryRepository extends JpaRepository<VacationRequestState, Long> {
 
-    List<VacationRequestState> findAllById_RequestIdOrderById_CreatedAtDesc(Long requestId);
+    List<VacationRequestState> findAllByRequestIdOrderByCreatedAtDesc(Long requestId);
 
 }

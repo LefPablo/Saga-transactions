@@ -68,7 +68,7 @@ public class VacationControllerService {
     }
 
     public List<SagaState> getRequestHistory(Long requestId) {
-        List<VacationRequestState> requestStates = requestHistoryRepository.findAllById_RequestIdOrderById_CreatedAtDesc(requestId);
+        List<VacationRequestState> requestStates = requestHistoryRepository.findAllByRequestIdOrderByCreatedAtDesc(requestId);
         return requestStates.stream().map(requestStateMapper::toSagaState).toList();
     }
 }

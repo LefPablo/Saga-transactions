@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "vacation_request_state")
+@Table(name = "vacation_request_history")
 public class VacationRequestState {
 
     @Id
