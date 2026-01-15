@@ -2,9 +2,9 @@ package io.dd.test.vacation.service;
 
 import io.dd.test.core.ProcessStatus;
 import io.dd.test.core.kafka.event.VacationEvent;
-import io.dd.test.core.saga.SagaState;
 import io.dd.test.vacation.api.dto.CreateVacationRequestDto;
 import io.dd.test.vacation.api.dto.VacationRequestDto;
+import io.dd.test.vacation.api.dto.VacationStateDto;
 import io.dd.test.vacation.api.exception.ResourceNotFoundException;
 import io.dd.test.vacation.api.publisher.VacationKafkaPublisher;
 import io.dd.test.vacation.mapper.VacationRequestMapper;
@@ -67,8 +67,8 @@ public class VacationControllerService {
         return results.map(requestMapper::toDto);
     }
 
-    public List<SagaState> getRequestHistory(Long requestId) {
-        List<VacationRequestState> requestStates = requestHistoryRepository.findAllByRequestIdOrderByCreatedAtDesc(requestId);
-        return requestStates.stream().map(requestStateMapper::toSagaState).toList();
+    public List<VacationStateDto> getRequestHistory(Long requestId) {
+        List<VacationRequestState> requestStates = requestHistoryRepository.findAllByRequestIdOrderByCreatedAtAsc(requestId);
+        return requestStates.stream().map(requestStateMapper::toDto).toList();
     }
 }

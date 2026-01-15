@@ -24,6 +24,7 @@ public class SataStateProcessorConfig {
 
     private final Serde<Long> keySerde;
     private final Serde<Object> sagaCommandSerde;
+    private final Serde<SagaState> sagaStateSerde;
 
     @Bean
     public KStream<Long, Object> sagaStateProcessor(KTable<Long, VacationEvent> sagaDataTable,
@@ -31,7 +32,8 @@ public class SataStateProcessorConfig {
                                                     @Value("${app.kafka.topics.vacation-command.name}") String vacationCommandTopic,
                                                     @Value("${app.kafka.topics.profiler-command.name}") String profilerCommandTopic,
                                                     @Value("${app.kafka.topics.accounting-command.name}") String accountingCommandTopic,
-                                                    @Value("${app.kafka.topics.resources-command.name}") String resourcesCommandTopic
+                                                    @Value("${app.kafka.topics.resources-command.name}") String resourcesCommandTopic,
+                                                    @Value("${app.kafka.topics.saga-state.name}") String sagaStateTopic
                                                     ) {
         KStream<Long, Object> commandStream = sagaStateTable
                 .toStream()
@@ -48,6 +50,7 @@ public class SataStateProcessorConfig {
                 })
                 .peek((key, command) -> log.info("Sending command: {} for sagaId: {}", command.getClass().getSimpleName(), key));
 
+        sagaStateTable.toStream().to(sagaStateTopic, Produced.with(keySerde, sagaStateSerde));
         sendCommands(commandStream, vacationCommandTopic, profilerCommandTopic, accountingCommandTopic, resourcesCommandTopic);
 
         return commandStream;

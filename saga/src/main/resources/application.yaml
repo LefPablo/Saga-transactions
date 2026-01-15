@@ -25,6 +25,8 @@ app:
         partitions: 3
         replicas: 3
         min-in-sync-replicas: 2
+      saga-state:
+        name: "dd.saga.state.event"
       vacation-command:
         name: "dd.vacation.command"
       profiler-command:

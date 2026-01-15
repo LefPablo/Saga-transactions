@@ -27,7 +27,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       isolation-level: read_committed
       properties:
-        spring.json.trusted.packages: "io.dd.test.core.kafka.*"
+        spring.json.trusted.packages: "io.dd.test.core.*"
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
 
 server:
@@ -44,7 +44,7 @@ app:
       saga-event:
         name: "dd.saga.event"
       saga-state:
-        name: "saga-saga-state-store-changelog"
+        name: "dd.saga.state.event"
       vacation-command:
         name: "dd.vacation.command"
         partitions: 3

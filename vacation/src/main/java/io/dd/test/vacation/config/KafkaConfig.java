@@ -3,6 +3,7 @@ package io.dd.test.vacation.config;
 import io.dd.test.vacation.api.exception.ResourceNotFoundException;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.TopicConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -42,6 +43,16 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory);
         factory.setCommonErrorHandler(errorHandler);
         return factory;
+    }
+
+    @Bean
+    public NewTopic requestStateTopic(TopicProperties topicProperties, @Value("${app.kafka.topics.saga-state.name}") String sagaStateTopic) {
+        return TopicBuilder
+                .name(sagaStateTopic)
+                .partitions(topicProperties.getPartitions())
+                .replicas(topicProperties.getReplicas())
+                .config(TopicConfig.MIN_IN_SYNC_REPLICAS_CONFIG, topicProperties.getMinInSyncReplicas())
+                .build();
     }
 
     @Bean

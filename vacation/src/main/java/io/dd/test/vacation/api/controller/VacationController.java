@@ -1,8 +1,8 @@
 package io.dd.test.vacation.api.controller;
 
-import io.dd.test.core.saga.SagaState;
 import io.dd.test.vacation.api.dto.CreateVacationRequestDto;
 import io.dd.test.vacation.api.dto.VacationRequestDto;
+import io.dd.test.vacation.api.dto.VacationStateDto;
 import io.dd.test.vacation.service.VacationControllerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -60,7 +60,7 @@ public class VacationController {
             summary = "Get vacation request history by ID",
             description = "Retrieves detailed information about a specific vacation request history"
     )
-    public List<SagaState> getVacationRequestHistory(@PathVariable Long requestId) {
+    public List<VacationStateDto> getVacationRequestHistory(@PathVariable Long requestId) {
         log.info("Get vacation request history by id: {}", requestId);
         return service.getRequestHistory(requestId);
     }
