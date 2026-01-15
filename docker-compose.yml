@@ -15,10 +15,14 @@ services:
     ports:
       - 9001:9001
     depends_on:
-      - db
-      - kafka-1
-      - kafka-2
-      - kafka-3
+      db:
+        condition: service_started
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
   accounting:
     build:
       context: .
@@ -30,10 +34,14 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     depends_on:
-      - db
-      - kafka-1
-      - kafka-2
-      - kafka-3
+      db:
+        condition: service_started
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
   resources:
     build:
       context: .
@@ -45,10 +53,14 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     depends_on:
-      - db
-      - kafka-1
-      - kafka-2
-      - kafka-3
+      db:
+        condition: service_started
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
   profiler:
     build:
       context: .
@@ -60,10 +72,14 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     depends_on:
-      - db
-      - kafka-1
-      - kafka-2
-      - kafka-3
+      db:
+        condition: service_started
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
   saga:
     build:
       context: .
@@ -72,9 +88,12 @@ services:
     environment:
       KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
     depends_on:
-      - kafka-1
-      - kafka-2
-      - kafka-3
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
   db:
     image: postgres:17-alpine
     restart: always
