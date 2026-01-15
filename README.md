@@ -3,13 +3,14 @@
 ## Getting Started
 
 ### Build and Run the Project
-
+It can take a while on first startup (around 10m depending on cpu and internet speed)
 ```bash
 docker compose build
 ```
 ```bash
-docker compose up
+docker compose up -d
 ```
+If first `docker compose up` fails due to health check, just run it one more time
 
 ### Swagger Documentation
 

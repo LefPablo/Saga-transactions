@@ -35,6 +35,7 @@ public class VacationController {
     @Operation(
             summary = "Create a new vacation request",
             description = "Creates a new vacation request for an employee<br>" +
+                    "<strong>By default each 5th request will fail on profiler service</strong><br>" +
                     "<strong>To simulate fail on specific service set following values:</strong><br>" +
                     "for accounting set budget > 100<br>" +
                     "for resources set time that periodTo - periodFrom > 25 days<br>" +
