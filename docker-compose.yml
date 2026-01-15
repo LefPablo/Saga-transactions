@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: vacation/Dockerfile
     environment:
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP}
-      DATABASE_URL: ${DATABASE_URL}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     ports:
@@ -18,8 +18,8 @@ services:
       context: .
       dockerfile: accounting/Dockerfile
     environment:
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP}
-      DATABASE_URL: ${DATABASE_URL}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
   resources:
@@ -27,8 +27,8 @@ services:
       context: .
       dockerfile: resources/Dockerfile
     environment:
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP}
-      DATABASE_URL: ${DATABASE_URL}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
   profiler:
@@ -36,8 +36,8 @@ services:
       context: .
       dockerfile: profiler/Dockerfile
     environment:
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP}
-      DATABASE_URL: ${DATABASE_URL}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
+      DATABASE_URL: ${DATABASE_URL_DOCKER}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
   saga:
@@ -45,7 +45,7 @@ services:
       context: .
       dockerfile: saga/Dockerfile
     environment:
-      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP}
+      KAFKA_BOOTSTRAP: ${KAFKA_BOOTSTRAP_DOCKER}
   db:
     image: postgres:17-alpine
     restart: always
