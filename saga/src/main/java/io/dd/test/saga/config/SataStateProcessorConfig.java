@@ -2,6 +2,7 @@ package io.dd.test.saga.config;
 
 import io.dd.test.core.kafka.command.*;
 import io.dd.test.core.kafka.event.VacationEvent;
+import io.dd.test.core.saga.SagaState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Serde;
@@ -35,7 +36,6 @@ public class SataStateProcessorConfig {
         KStream<Long, Object> commandStream = sagaStateTable
                 .toStream()
                 .join(sagaDataTable, AugmentedSagaState::new)
-                .peek((key, command) -> log.info("Sending command: {} for sagaId: {}", command.getClass().getSimpleName(), key))
                 .flatMapValues((sagaId, augmentedSagaState) -> switch ((augmentedSagaState.state).status()) {
                     case CREATED -> List.of(createAllocateBudgetCommand(augmentedSagaState));
                     case BUDGET_ALLOCATED -> List.of(createCheckResourcesCommand(augmentedSagaState));
@@ -45,7 +45,8 @@ public class SataStateProcessorConfig {
                     case RESOURCES_FAILED, RESOURCES_CANCELED -> List.of(createAccountingCancelCommand(augmentedSagaState));
                     case BUDGET_FAILED, BUDGET_ALLOCATION_CANCELED -> List.of(createVacationCancelCommand(augmentedSagaState));
                     default -> List.of(); //handle illegal state logic
-                });
+                })
+                .peek((key, command) -> log.info("Sending command: {} for sagaId: {}", command.getClass().getSimpleName(), key));
 
         sendCommands(commandStream, vacationCommandTopic, profilerCommandTopic, accountingCommandTopic, resourcesCommandTopic);
 

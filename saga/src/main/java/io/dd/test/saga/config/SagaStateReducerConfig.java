@@ -2,6 +2,7 @@ package io.dd.test.saga.config;
 
 import io.dd.test.core.ProcessStatus;
 import io.dd.test.core.kafka.event.*;
+import io.dd.test.core.saga.SagaState;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public class SagaStateReducerConfig {
     public static final String SAGA_DATA_STORE = "saga-data-store";
 
     private final Serde<Long> keySerde;
-    private final Serde<Object> sagaEventSerde; //TODO
+    private final Serde<Object> sagaEventSerde;
     private final Serde<SagaState> sagaStateSerde;
     private final Serde<VacationEvent> vacationEventSerde;
 
@@ -49,7 +50,7 @@ public class SagaStateReducerConfig {
     @Bean
     public KTable<Long, VacationEvent> sagaDataTable(KStream<Long, Object> sagaEventStream) {
         return sagaEventStream
-                .filter((key, event) -> event instanceof VacationEvent) //TODO vacationCreateRequestEvent?
+                .filter((key, event) -> event instanceof VacationEvent)
                 .mapValues((value) -> (VacationEvent) value)
                 .toTable(Materialized.<Long, VacationEvent>as(Stores.inMemoryKeyValueStore(SAGA_DATA_STORE))
                         .withKeySerde(keySerde)
@@ -59,7 +60,7 @@ public class SagaStateReducerConfig {
     @Bean
     public KTable<Long, SagaState> sagaStateTable(KStream<Long, Object> sagaEventStream) {
         return sagaEventStream
-                .peek(((uuid, event) -> log.info("Received event {} for request id {}", event, uuid))) //TODO abstract SagaEvent with requestID
+                .peek(((uuid, event) -> log.info("Received event {} for request id {}", event, uuid)))
                 .groupByKey()
                 .aggregate(
                         () -> null,

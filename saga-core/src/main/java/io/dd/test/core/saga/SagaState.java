@@ -1,4 +1,4 @@
-package io.dd.test.saga.config;
+package io.dd.test.core.saga;
 
 import io.dd.test.core.ProcessStatus;
 

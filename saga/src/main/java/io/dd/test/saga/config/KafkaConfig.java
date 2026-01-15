@@ -1,6 +1,7 @@
 package io.dd.test.saga.config;
 
 import io.dd.test.core.kafka.event.VacationEvent;
+import io.dd.test.core.saga.SagaState;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.serialization.Serde;
@@ -20,7 +21,7 @@ import static org.springframework.kafka.support.serializer.JacksonJsonDeserializ
 @Configuration
 public class KafkaConfig {
 
-    //TODO add dlt topic plus error handler
+    private static final String JSON_TRUSTED_PACKAGE = "io.dd.test.core.*";
 
     @Bean
     public NewTopic eventTopic(TopicProperties topicProperties) {
@@ -40,52 +41,28 @@ public class KafkaConfig {
     @Bean
     public Serde<SagaState> sagaStateSerde() {
         JacksonJsonSerde<SagaState> serde = new JacksonJsonSerde<>();
-        serde.configure(
-                Map.of(
-                        TRUSTED_PACKAGES, "*",
-                        VALUE_DEFAULT_TYPE, SagaState.class
-                )
-                , false
-        );
+        serde.configure(Map.of(TRUSTED_PACKAGES, JSON_TRUSTED_PACKAGE, VALUE_DEFAULT_TYPE, SagaState.class), false);
         return serde;
     }
 
     @Bean
     public Serde<VacationEvent> vacationEventSerde() {
         JacksonJsonSerde<VacationEvent> serde = new JacksonJsonSerde<>();
-        serde.configure(
-                Map.of(
-                        TRUSTED_PACKAGES, "*",
-                        VALUE_DEFAULT_TYPE, VacationEvent.class
-                )
-                , false
-        );
+        serde.configure(Map.of(TRUSTED_PACKAGES, JSON_TRUSTED_PACKAGE, VALUE_DEFAULT_TYPE, VacationEvent.class), false);
         return serde;
     }
 
     @Bean
     public Serde<Object> sagaEventSerde() {
         JacksonJsonSerde<Object> serde = new JacksonJsonSerde<>();
-        serde.configure(
-                Map.of(
-                        TRUSTED_PACKAGES, "*",
-                        VALUE_DEFAULT_TYPE, Object.class
-                )
-                , false
-        );
+        serde.configure(Map.of(TRUSTED_PACKAGES, JSON_TRUSTED_PACKAGE, VALUE_DEFAULT_TYPE, Object.class), false);
         return serde;
     }
 
     @Bean
     public Serde<Object> sagaCommandSerde() {
         JacksonJsonSerde<Object> serde = new JacksonJsonSerde<>();
-        serde.configure(
-                Map.of(
-                        TRUSTED_PACKAGES, "*",
-                        VALUE_DEFAULT_TYPE, Object.class
-                )
-                , false
-        );
+        serde.configure(Map.of(TRUSTED_PACKAGES, JSON_TRUSTED_PACKAGE, VALUE_DEFAULT_TYPE, Object.class), false);
         return serde;
     }
 

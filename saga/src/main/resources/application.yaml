@@ -7,7 +7,7 @@ spring:
       properties:
         processing.guarantee: exactly_once_v2
         isolation.level: read_committed
-        spring.json.trusted.packages: "*"
+        spring.json.trusted.packages: "io.dd.test.core.*"
 
 server:
   port: 9005
@@ -33,11 +33,3 @@ app:
         name: "dd.accounting.command"
       resources-command:
         name: "dd.resources.command"
-      vacation-event:
-        name: "dd.vacation.event"
-      profiler-event:
-        name: "dd.profiler.event"
-      accounting-event:
-        name: "dd.accounting.event"
-      resources-event:
-        name: "dd.resources.event"
