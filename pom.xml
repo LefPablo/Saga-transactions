@@ -33,7 +33,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <org.projectlombok.mapstruct.binding>0.2.0</org.projectlombok.mapstruct.binding>
         <spring.boot.maven.compiler.plugin.version>3.10.1</spring.boot.maven.compiler.plugin.version>
-        <springdoc-openapi-starter-webmvc-ui.version>2.7.0</springdoc-openapi-starter-webmvc-ui.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.0.1</springdoc-openapi-starter-webmvc-ui.version>
 	</properties>
 
 	<dependencies>

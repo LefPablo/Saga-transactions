@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class VacationRequestSpecification implements Specification<VacationRequest> {
@@ -26,13 +27,10 @@ public class VacationRequestSpecification implements Specification<VacationReque
         String key = criteria.key();
         String op = criteria.operation();
 
-        // Get the attribute path
         Path<?> path = root.get(key);
 
-        // Handle comparison operations: >, >=, <, <=
-        if (op.equals(">") || op.equals(">=") ||
-                op.equals("<") || op.equals("<=")) {
-
+        Set<String> compareOperations = Set.of("<", ">", "<=", ">=");
+        if (compareOperations.contains(op)) {
             if (value instanceof LocalDateTime dateTime) {
                 Path<LocalDateTime> dateTimePath = root.get(key);
                 return switch (op) {
@@ -67,7 +65,6 @@ public class VacationRequestSpecification implements Specification<VacationReque
             }
         }
 
-        // Handle equality (=) - default for unsupported ops too
         if (op.equals("=") || op.equals("~")) {
             if (value instanceof String str && op.equals("~")) {
                 // Like search for strings with ~ operator
@@ -77,8 +74,11 @@ public class VacationRequestSpecification implements Specification<VacationReque
                             "%" + str + "%");
                 }
             }
-            // Exact match for all types (including String with =)
             return builder.equal(root.get(key), value);
+        }
+
+        if (op.equals("<>")) {
+            return builder.notEqual(root.get(key), value);
         }
 
         return null; // Unsupported operation

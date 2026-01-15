@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,21 +17,6 @@ public class CriteriaParser {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
-    /**
-     * Parses a criteria string like "createdAt>2026-01-13T23:56:51.797109"
-     * into a SearchCriteria record.
-     *
-     * Supported operations: <, >, =, <=, >=, ~ (delimiters <>~=)
-     * Value types attempted in order:
-     * - Integer (if parseable as long)
-     * - LocalDateTime (ISO format with time)
-     * - LocalDate (ISO date only)
-     * - fallback to String (trimmed)
-     *
-     * @param criteria the input criteria string
-     * @return SearchCriteria with parsed key, operation, and value
-     * @throws IllegalArgumentException if the format is invalid or value cannot be parsed
-     */
     public static SearchCriteria parseCriteriaString(String criteria) {
         if (criteria == null || criteria.isBlank()) {
             throw new IllegalArgumentException("Criteria string cannot be null or empty");
@@ -45,8 +31,8 @@ public class CriteriaParser {
         String operation = matcher.group(2);
         String valueStr = matcher.group(3).trim();
 
-        // Supported operations check (allows < > = <= >= ~ <> but <> not typical)
-        if (!operation.matches("[<>=~]+") || operation.contains("<>") || operation.contains("><")) {
+        Set<String> supportedOperations = Set.of("<", ">", "<>", "=", "<=", ">=", "~");
+        if (!supportedOperations.contains(operation)) {
             throw new IllegalArgumentException("Unsupported operation: " + operation);
         }
 
@@ -56,9 +42,12 @@ public class CriteriaParser {
     }
 
     private static Object parseValue(String valueStr) {
-        // Try Integer first
         try {
-            return Long.parseLong(valueStr); // Use Long to cover int range safely; can be used as Integer if needed
+            return Long.parseLong(valueStr);
+        } catch (NumberFormatException ignored) {}
+
+        try {
+            return Double.parseDouble(valueStr);
         } catch (NumberFormatException ignored) {}
 
         // Try LocalDateTime (has 'T' and time)
@@ -68,12 +57,10 @@ public class CriteriaParser {
             } catch (DateTimeParseException ignored) {}
         }
 
-        // Try LocalDate
         try {
             return LocalDate.parse(valueStr, DATE_FORMATTER);
         } catch (DateTimeParseException ignored) {}
 
-        // Fallback to String (trimmed)
         return valueStr;
     }
 
