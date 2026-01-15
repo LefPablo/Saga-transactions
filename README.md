@@ -1,0 +1,57 @@
+# Vacation Request Management System
+
+## Getting Started
+
+### Build and Run the Project
+
+```bash
+docker compose build
+```
+```bash
+docker compose up
+```
+
+### Swagger Documentation
+
+Access the API documentation at:
+```
+http://localhost:9001/swagger-ui/index.html
+```
+
+## API Features
+
+### Create Vacation Request
+
+To test service failure scenarios, configure the request with one of the following conditions:
+
+- **Accounting Service Failure**: Set `budget > 100`
+- **Resources Service Failure**: Set time period where `periodTo - periodFrom > 25 days`
+- **Profiler Service Failure**: Set `cvUuid` to `00000000-0000-0000-0000-000000000000`
+
+#### Example Request (triggers all failures)
+
+```json
+{
+  "cvUuid": "00000000-0000-0000-0000-000000000000",
+  "periodFrom": "2026-01-01",
+  "periodTo": "2026-01-27",
+  "budget": 105
+}
+```
+
+### Get Vacation Requests with Filtering
+
+The filtering feature is implemented using JPA Specification, with queries generated at runtime.
+
+#### Supported Filter Operations
+
+- `>` - Greater than
+- `<` - Less than
+- `<>` - Not equal
+- `<=` - Less than or equal
+- `>=` - Greater than or equal
+- `~` - LIKE operator (for string fields, e.g., `cvUuid`)
+
+#### Additional Features
+
+- Sorting by any field is supported
