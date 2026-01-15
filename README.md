@@ -22,6 +22,7 @@ http://localhost:9001/swagger-ui/index.html
 
 ### Create Vacation Request
 
+By default profiler service will fail on each 5th request
 To test service failure scenarios, configure the request with one of the following conditions:
 
 - **Accounting Service Failure**: Set `budget > 100`
