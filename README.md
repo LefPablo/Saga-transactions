@@ -55,3 +55,14 @@ The filtering feature is implemented using JPA Specification, with queries gener
 #### Additional Features
 
 - Sorting by any field is supported
+
+### Get Request State History
+
+Returns a list of vacation request state history in chronological order, tracking all state transitions for a given request.
+
+#### Response
+
+Returns an ordered list of state changes including:
+- State transition details
+- Timestamp of each change
+- Chronological ordering from oldest to newest
